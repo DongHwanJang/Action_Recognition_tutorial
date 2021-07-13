@@ -9,6 +9,20 @@ class C3D(nn.Module):
     
     def __init__(self, num_classes, pretrained=""):
         super(C3D, self).__init__()
+        
+        #============================================================
+        #All of convolution layers use kernel_size (3,3,3) and padding (1, 1, 1)
+        #conv1 3 -> 64
+        #conv2 64 -> 128
+        #conv3a 128 -> 256
+        #conv3b 256 -> 256
+        #conv4a 256 -> 512
+        #conv4b 512 -> 512
+        #conv5a 512 -> 512
+        #conv5b 512 -> 512
+        #fc6 (you need to find input channel size) -> 4096
+        #fc7 4096 -> num_classes
+        #============================================================
 
         self.conv1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
         self.pool1 = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
@@ -33,8 +47,8 @@ class C3D(nn.Module):
         self.pool5 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1))
 
         self.fc6 = nn.Linear(8192, 4096)
-        self.fc7 = nn.Linear(4096, 4096)
-        self.fc8 = nn.Linear(4096, num_classes)
+        self.fc7 = nn.Linear(4096, num_classes)
+        #============================================================
 
         self.dropout = nn.Dropout(p=0.5)
 
@@ -46,7 +60,10 @@ class C3D(nn.Module):
             self.__load_pretrained_weights(pretrained)
 
     def forward(self, x):
-
+        
+        #============================================================
+        #use all layer to forward
+        #============================================================
         x = self.relu(self.conv1(x))
         x = self.pool1(x)
 
@@ -68,10 +85,9 @@ class C3D(nn.Module):
         x = x.view(-1, 8192)
         x = self.relu(self.fc6(x))
         x = self.dropout(x)
-        x = self.relu(self.fc7(x))
-        x = self.dropout(x)
-
-        logits = self.fc8(x)
+        
+        #============================================================
+        logits = self.fc7(x)
 
         return logits
 
