@@ -24,26 +24,26 @@ class C3D(nn.Module):
         #fc7 4096 -> num_classes
         #============================================================
 
-        self.conv1 = nn.Conv3d(3, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv1 = 
         self.pool1 = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
         #self.nonlocal1 = NonLocalBlock3D(64)
 
-        self.conv2 = nn.Conv3d(64, 128, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv2 = 
         self.pool2 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2))
         #self.nonlocal2 = NonLocalBlock3D(128)
 
-        self.conv3a = nn.Conv3d(128, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1))
-        self.conv3b = nn.Conv3d(256, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv3a = 
+        self.conv3b = 
         self.pool3 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2))
         #self.nonlocal3 = NonLocalBlock3D(256)
 
-        self.conv4a = nn.Conv3d(256, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
-        self.conv4b = nn.Conv3d(512, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv4a = 
+        self.conv4b = 
         self.pool4 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2))
         #self.nonlocal4 = NonLocalBlock3D(512)
 
-        self.conv5a = nn.Conv3d(512, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
-        self.conv5b = nn.Conv3d(512, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
+        self.conv5a = 
+        self.conv5b = 
         self.pool5 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1))
 
         self.fc6 = nn.Linear(8192, 4096)
@@ -64,27 +64,7 @@ class C3D(nn.Module):
         #============================================================
         #use all layer to forward
         #============================================================
-        x = self.relu(self.conv1(x))
-        x = self.pool1(x)
-
-        x = self.relu(self.conv2(x))
-        x = self.pool2(x)
-
-        x = self.relu(self.conv3a(x))
-        x = self.relu(self.conv3b(x))
-        x = self.pool3(x)
-
-        x = self.relu(self.conv4a(x))
-        x = self.relu(self.conv4b(x))
-        x = self.pool4(x)
-
-        x = self.relu(self.conv5a(x))
-        x = self.relu(self.conv5b(x))
-        x = self.pool5(x)
-
-        x = x.view(-1, 8192)
-        x = self.relu(self.fc6(x))
-        x = self.dropout(x)
+  
         
         #============================================================
         logits = self.fc7(x)
