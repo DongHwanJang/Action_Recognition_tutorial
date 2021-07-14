@@ -3,9 +3,10 @@ from torch import nn
 from torch.nn import functional as F
 
 class NonLocalBlock3D(nn.Module):
-    def __init__(self, in_channels, dimension=3, sub_sample=True):
+    def __init__(self, in_channels, test_mode=False, dimension=3, sub_sample=True):
         super(NonLocalBlock3D, self).__init__()
-
+        
+        self.test_mode = test_mode
         self.dimension = dimension
         self.sub_sample = sub_sample
 
@@ -50,9 +51,7 @@ class NonLocalBlock3D(nn.Module):
         :param x: (b, c, t, h, w)
         :return:
         '''
-        print(x.shape)
         batch_size = x.size(0)
-        
         #============================================================
         #1. use self.g(x)
         #2. use self.theta(x)
@@ -61,25 +60,26 @@ class NonLocalBlock3D(nn.Module):
         #5. use self.W(y)
         #6. make z with x and self.W(y)
         #============================================================
-        print(self.g(x).shape)
         g_x = self.g(x).view(batch_size, self.inter_channels, -1)
         g_x = g_x.permute(0, 2, 1)
-        print(g_x.shape)
 
         theta_x = self.theta(x).view(batch_size, self.inter_channels, -1)
         theta_x = theta_x.permute(0, 2, 1)
-        print(theta_x.shape)
         
         phi_x = self.phi(x).view(batch_size, self.inter_channels, -1)
-        print(phi_x.shape)
 
         f = torch.matmul(theta_x, phi_x)
         f_div_C = F.softmax(f, dim=-1)
-        print(f.shape)
-
 
         y = torch.matmul(f_div_C, g_x)
-        print(y.shape)
+        
+        if self.test_mode:
+            print("x: {}".format(x.shape))
+            print("g_x: {}".format(g_x.shape))
+            print("theta_x: {}".format(theta_x.shape))
+            print("phi_x: {}".format(phi_x.shape))
+            print("f: {}".format(f.shape))
+            print("y: {}".format(y.shape))
 
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
@@ -97,6 +97,6 @@ if __name__ == '__main__':
     sub_sample = False
 
     img = Variable(torch.randn(2, 3, 10, 20, 20))
-    net = NonLocalBlock3D(3, sub_sample=sub_sample)
+    net = NonLocalBlock3D(3, test_mode=True, sub_sample=sub_sample)
     out = net(img)
     print(out.size())
