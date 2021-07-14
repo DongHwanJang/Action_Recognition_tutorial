@@ -19,6 +19,7 @@ def get_test_num(filename):
     lines = open(filename, 'r')
     return len(list(lines))
 
+
 def frame_process(clip, clip_length=CLIP_LENGTH, crop_size=112, channel_num=3):
     frames_num = len(clip)
     croped_frames = np.zeros([frames_num, crop_size, crop_size, channel_num]).astype(np.float32)
