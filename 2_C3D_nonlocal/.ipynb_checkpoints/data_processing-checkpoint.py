@@ -33,9 +33,9 @@ def frame_process(clip, clip_length=CLIP_LENGTH, crop_size=112, channel_num=3):
         else:
             scale = float(crop_size) / float(img.width)
             img = np.array(cv2.resize(np.array(img), (crop_size, int(img.height * scale + 1)))).astype(np.float32)
-        crop_x = int((img.shape[0] - crop_size) / 2)
-        crop_y = int((img.shape[1] - crop_size) / 2)
-        img = img[crop_x: crop_x + crop_size, crop_y : crop_y + crop_size, :]
+        crop_x = 
+        crop_y = 
+        img = 
         croped_frames[i, :, :, :] = img - np_mean[i]
 
     return croped_frames
@@ -56,13 +56,13 @@ def convert_images_to_clip(filename, clip_length=CLIP_LENGTH, crop_size=112, cha
                 img = Image.open(image_name)
                 img_data = np.array(img)
                 clip.append(img_data)
-        else:
-            s_index = random.randint(0, len(filenames) - clip_length)
-            for i in range(s_index, s_index + clip_length):
-                image_name = str(filename) + '/' + str(filenames[i])
-                img = Image.open(image_name)
-                img_data = np.array(img)
-                clip.append(img_data)
+        else: 
+            # In the case that the length of the video is longer than the pre-defined CLIP_LENGTH (=16)
+            # Randomly pick 16 consecutive frames and merge them as a clip
+            
+            
+            
+            
     if len(clip) == 0:
         print(filename)
     clip = frame_process(clip, clip_length, crop_size, channel_num)

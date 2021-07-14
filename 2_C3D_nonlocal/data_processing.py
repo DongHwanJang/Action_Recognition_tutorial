@@ -8,20 +8,16 @@ import numpy as np
 import os
 import time
 import pickle
-CLIP_LENGTH = 16
 import cv2
+from torch.utils.data import Dataset
+
+CLIP_LENGTH = 16
 
 np_mean = np.load('crop_mean.npy').reshape([CLIP_LENGTH, 112, 112, 3])
 
 def get_test_num(filename):
     lines = open(filename, 'r')
     return len(list(lines))
-
-def get_video_indices(num_vids):
-    video_indices = range(num_vids)
-    random.seed(time.time())
-    shuffled_indices = random.sample(range(num_vids), num_vids)
-    return shuffled_indices
 
 def frame_process(clip, clip_length=CLIP_LENGTH, crop_size=112, channel_num=3):
     frames_num = len(clip)
@@ -36,7 +32,6 @@ def frame_process(clip, clip_length=CLIP_LENGTH, crop_size=112, channel_num=3):
         else:
             scale = float(crop_size) / float(img.width)
             img = np.array(cv2.resize(np.array(img), (crop_size, int(img.height * scale + 1)))).astype(np.float32)
-        # Center crop
         crop_x = 
         crop_y = 
         img = 
@@ -66,27 +61,31 @@ def convert_images_to_clip(filename, clip_length=CLIP_LENGTH, crop_size=112, cha
             
             
             
+            
     if len(clip) == 0:
         print(filename)
     clip = frame_process(clip, clip_length, crop_size, channel_num)
-    return clip #shape[clip_length, crop_size, crop_size, channel_num]
+    return clip # shape: [clip_length, crop_size, crop_size, channel_num]
 
-def get_batches(data_list, num_classes, batch_index, video_indices, batch_size=10, crop_size=112, channel_num=3):
-    clips = []
-    labels = []
-    video_list = list(data_list)
-    for i in video_indices[batch_index: batch_index + batch_size]:
-        line = video_list[i].strip('\n').split()
+class UCF11Dataset(Dataset):
+    def __init__(self, data_list, num_classes, crop_size=112, channel_num=3):
+        self.data_list = data_list
+        self.video_list = list(data_list)
+        self.crop_size = crop_size
+        self.channel_num = channel_num        
+        self.num_classes = num_classes
+    
+    def __len__(self):
+        return len(self.video_list)
+    
+    def __getitem__(self, i):                
+        line = self.video_list[i].strip('\n').split()
         dirname = line[0]
-        label = data_list[dirname]
-        i_clip = convert_images_to_clip(dirname, CLIP_LENGTH, crop_size, channel_num)
-        clips.append(i_clip)
-        labels.append(int(label))
-    clips = np.array(clips).astype(np.float32)
-    labels = np.array(labels).astype(np.int64)
-    oh_labels = np.zeros([len(labels), num_classes]).astype(np.int64)
-    for i in range(len(labels)):
-        oh_labels[i, labels[i]] = 1
-    batch_index = batch_index + batch_size
-    batch_data = {'clips': clips, 'labels': oh_labels}
-    return batch_data, batch_index
+        label = int(self.data_list[dirname])
+        clips = convert_images_to_clip(dirname, CLIP_LENGTH, self.crop_size, self.channel_num)              
+        
+        clips = np.transpose(np.array(clips).astype(np.float32), (3, 0, 1, 2))
+        
+        batch_data = {'clips': clips, 'labels': label}
+        
+        return batch_data       
